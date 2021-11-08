@@ -1,3 +1,5 @@
-include ../Makefile.inc
+run:
+	docker-compose build && docker-compose up
 
-PROGNAME=fids
+run-background:
+	docker-compose build && docker-compose up -d

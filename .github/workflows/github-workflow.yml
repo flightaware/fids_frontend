@@ -1,0 +1,47 @@
+name: Publish Docker image
+
+on:
+  push:
+    # Publish `master` as Docker `latest` image.
+    branches:
+      - master
+
+    # Publish `v1.2.3` tags as releases.
+    tags:
+      - v*
+
+  workflow_dispatch:
+    # Allow manually triggered builds too.
+
+env:
+  FIDS_IMAGE_NAME: fids-frontend
+
+jobs:
+  # Push image to GitHub Packages.
+  # See also https://docs.docker.com/docker-hub/builds/
+  push:
+
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build images
+        run: |
+          # Strip git ref prefix from version
+          FIDS_VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          # Use Docker `latest` tag convention
+          [ "$FIDS_VERSION" == "master" ] && FIDS_VERSION=latest
+
+          echo "FIDS_VERSION=$FIDS_VERSION" >> $GITHUB_ENV
+
+          docker-compose build $FIDS_IMAGE_NAME
+
+      - name: Log into registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ secrets.GHCR_USER }} --password-stdin
+
+      - name: Push images
+        run: 
+          docker-compose push $FIDS_IMAGE_NAME
