@@ -16,7 +16,7 @@ class AirportList extends Component {
     }
 
     fetchTopAirports(time) {
-        axios.get(`/airports/?limit=10&since=${time}`)
+        axios.get(`/api/airports/?limit=10&since=${time}`)
             .then(response => {
                 this.setState({
                     topAirports: response.data,

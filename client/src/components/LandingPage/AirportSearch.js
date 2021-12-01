@@ -13,7 +13,7 @@ class AirportSearch extends Component {
 
     submitForm (e) {
         e.preventDefault();
-        this.props.history.push(`/airport/${this.state.airport}`);
+        this.props.history.push(`/api/airport/${this.state.airport}`);
     }
 
     handleChange = (e) => {
