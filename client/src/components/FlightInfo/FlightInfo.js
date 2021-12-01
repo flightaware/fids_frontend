@@ -13,8 +13,10 @@ export default class FlightInfo extends Component {
             data: {},
             positions: {},
             flight_id: props.match.flight,
+            google_maps_api_key: "",
             loading_flight: true,
             loading_positions: true,
+            loading_maps_key: true,
         }
     }
 
@@ -23,11 +25,12 @@ export default class FlightInfo extends Component {
         const { match: { params } } = this.props;
         this.fetchFlightInfo(params.flight);
         this.fetchPositions(params.flight);
+        this.fetchMapsKey();
 
     }
 
     fetchFlightInfo(flightID) {
-        axios.get(`/flights/${(flightID === 'random') ? '' : flightID}`)
+        axios.get(`/api/flights/${(flightID === 'random') ? '' : flightID}`)
             .then(response => {
                 console.log(response.data)
                 this.setState({
@@ -45,7 +48,7 @@ export default class FlightInfo extends Component {
 
     fetchPositions(flightID) {
         if (flightID !== 'random') {
-            axios.get(`/positions/${flightID}`)
+            axios.get(`/api/positions/${flightID}`)
                 .then(response => {
                     console.log(response)
                     this.setState({
@@ -56,9 +59,22 @@ export default class FlightInfo extends Component {
         }
     }
 
+    fetchMapsKey() {
+        axios.get('/api/mapskey')
+            .then(response => {
+                console.log(response)
+                if (response.data !== '') {
+                    this.setState({
+                        loading_maps_key: false,
+                        google_maps_api_key: response.data
+                    });
+                }
+            });
+    }
+
     render() {
         
-        const { data, positions, loading_flight, loading_positions } = this.state;
+        const { data, positions, google_maps_api_key, loading_flight, loading_positions, loading_maps_key } = this.state;
 
         
 
@@ -148,7 +164,7 @@ export default class FlightInfo extends Component {
                 latlon +=  "|" + obj.latitude + "," + obj.longitude;
             }
 
-            return <div className="d-flex align-items-center"><img src={`https://maps.googleapis.com/maps/api/staticmap?size=640x400&markers=anchor:center|icon:https://github.com/flightaware/firestarter/raw/master/fids/images/aircraft_${image_bearing}.png|${positions[0].latitude},${positions[0].longitude}&path=color:0x0000ff|weight:5${latlon}&key=${window.GOOGLE_MAPS_API_KEY}`}/></div>
+            return <div className="d-flex align-items-center"><img src={`https://maps.googleapis.com/maps/api/staticmap?size=640x400&markers=anchor:center|icon:https://github.com/flightaware/firestarter/raw/master/fids/images/aircraft_${image_bearing}.png|${positions[0].latitude},${positions[0].longitude}&path=color:0x0000ff|weight:5${latlon}&key=${google_maps_api_key}`}/></div>
         }
 
         return (
@@ -206,7 +222,7 @@ export default class FlightInfo extends Component {
                             </Col>
                         </Row>
                     </Container>
-                    {!loading_positions && window.GOOGLE_MAPS_API_KEY ?
+                    {!loading_positions && !loading_maps_key ?
                     <div className="d-flex justify-content-center">{getMapImage()}</div>
                     : <Container></Container>}
                     <Container>
