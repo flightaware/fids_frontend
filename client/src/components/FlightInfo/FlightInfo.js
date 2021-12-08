@@ -164,7 +164,7 @@ export default class FlightInfo extends Component {
                 latlon +=  "|" + obj.latitude + "," + obj.longitude;
             }
 
-            return <div className="d-flex align-items-center"><img src={`https://maps.googleapis.com/maps/api/staticmap?size=640x400&markers=anchor:center|icon:https://github.com/flightaware/firestarter/raw/master/fids/images/aircraft_${image_bearing}.png|${positions[0].latitude},${positions[0].longitude}&path=color:0x0000ff|weight:5${latlon}&key=${google_maps_api_key}`}/></div>
+            return <div className="d-flex align-items-center"><img src={`https://maps.googleapis.com/maps/api/staticmap?size=640x400&markers=anchor:center|icon:https://github.com/flightaware/fids_frontend/raw/master/images/aircraft_${image_bearing}.png|${positions[0].latitude},${positions[0].longitude}&path=color:0x0000ff|weight:5${latlon}&key=${google_maps_api_key}`}/></div>
         }
 
         return (
