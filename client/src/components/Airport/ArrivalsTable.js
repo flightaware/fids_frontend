@@ -20,7 +20,7 @@ export default class ArrivalsTable extends Component {
     }
 
     fetchData() {
-        axios.get(`/airports/${this.props.code}/arrivals`)
+        axios.get(`/api/airports/${this.props.code}/arrivals`)
             .then(response => {
                 this.setState({
                     data: response.data,

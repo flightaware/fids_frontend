@@ -20,7 +20,7 @@ export default class EnrouteTable extends Component {
     }
 
     fetchData() {
-        axios.get(`/airports/${this.props.code}/enroute`)
+        axios.get(`/api/airports/${this.props.code}/enroute`)
             .then(response => {
                 this.setState({
                     data: response.data,

@@ -1,37 +1,19 @@
-FROM python:3.8-slim-buster
+FROM node:12.16-buster-slim as react-build
 
-LABEL org.opencontainers.image.source=https://github.com/flightaware/firestarter
+WORKDIR /react
+COPY client .
 
-RUN apt-get update && \
-	apt-get install -y libpq-dev gcc npm make && \
-	npm install npm@latest -g
-RUN id -u firestarter || useradd -u 8081 firestarter -c "FIRESTARTER User" -m -s /bin/sh
-USER firestarter
-WORKDIR /home/firestarter
+RUN npm install --no-optional && \
+    npm cache clean --force && \
+    npm run build && \
+    rm -rf node_modules
 
-COPY --chown=firestarter Makefile.inc .
+FROM nginx:1.21.3
 
-RUN mkdir app
-WORKDIR /home/firestarter/app
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
-COPY --chown=firestarter fids/frontend/client frontend
-RUN cd frontend && \
-	npm install --no-optional && \
-	npm cache clean --force && \
-	npm run build && \
-	rm -rf node_modules
+RUN rm -rf /usr/share/nginx/html/*
 
-RUN mkdir db
-COPY --chown=firestarter fids/requirements ./requirements
-COPY --chown=firestarter fids/Makefile .
+COPY --from=react-build /react/build /usr/share/nginx/html
 
-ENV FLASK_APP=app.py
-ENV FLASK_ENV=development
-
-RUN make docker-setup
-ENV VIRTUAL_ENV=./venv
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-
-COPY --chown=firestarter fids/app.py .
-
-CMD ["python3", "app.py"]
+CMD ["nginx", "-g", "daemon off;"]

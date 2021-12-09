@@ -20,7 +20,7 @@ export default class ScheduledTable extends Component {
     }
 
     fetchData() {
-        axios.get(`/airports/${this.props.code}/scheduled`)
+        axios.get(`/api/airports/${this.props.code}/scheduled`)
             .then(response => {
                 this.setState({
                     data: response.data,
