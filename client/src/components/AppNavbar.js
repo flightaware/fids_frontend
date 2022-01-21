@@ -5,7 +5,7 @@ export default class AppNavbar extends Component {
     render() {
         return (
             <Navbar bg="light" sticky="top" expand="lg">
-                <Navbar.Brand href="/">Firestarter</Navbar.Brand>
+                <Navbar.Brand href="/">FlightAware FIDS</Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="ml-auto">

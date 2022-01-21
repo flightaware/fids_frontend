@@ -1,6 +1,6 @@
 {
-  "short_name": "Firestarter",
-  "name": "Getting Started with Firehose",
+  "short_name": "FIDS",
+  "name": "FlightAware FIDS",
   "icons": [
     {
       "src": "favicon.ico",
