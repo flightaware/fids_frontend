@@ -3,7 +3,6 @@ import { Container, Row, Col, Card } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
 import axios from 'axios';
 import * as FS from '../../controller.js';
-import * as helpers from '../../helpers.js';
 
 export default class FlightInfo extends Component {
     constructor(props) {
@@ -12,11 +11,11 @@ export default class FlightInfo extends Component {
         this.state = {
             data: {},
             positions: {},
+            encoded_map: '',
             flight_id: props.match.flight,
-            google_maps_api_key: "",
             loading_flight: true,
             loading_positions: true,
-            loading_maps_key: true,
+            loading_map: true,
         }
     }
 
@@ -25,7 +24,7 @@ export default class FlightInfo extends Component {
         const { match: { params } } = this.props;
         this.fetchFlightInfo(params.flight);
         this.fetchPositions(params.flight);
-        this.fetchMapsKey();
+        this.fetchMap(params.flight);
 
     }
 
@@ -59,14 +58,13 @@ export default class FlightInfo extends Component {
         }
     }
 
-    fetchMapsKey() {
-        axios.get('/api/mapskey')
+    fetchMap(flightID) {
+        axios.get(`/api/map/${flightID}`)
             .then(response => {
-                console.log(response)
                 if (response.data !== '') {
                     this.setState({
-                        loading_maps_key: false,
-                        google_maps_api_key: response.data
+                        loading_map: false,
+                        encoded_map: response.data
                     });
                 }
             });
@@ -74,7 +72,7 @@ export default class FlightInfo extends Component {
 
     render() {
         
-        const { data, positions, google_maps_api_key, loading_flight, loading_positions, loading_maps_key } = this.state;
+        const { data, positions, encoded_map, loading_flight, loading_positions, loading_map } = this.state;
 
         
 
@@ -148,23 +146,12 @@ export default class FlightInfo extends Component {
         const getMapImage = () => {
             // do not display a map if there are no positions
             if (positions.length == 0) {
-                return <div></div>
+                return <div />
             }
 
-            // Get aircraft image bearing
-            let image_bearing = 0;
-            if (positions.length > 5) {
-                image_bearing = helpers.getClosestDegreeAngle(helpers.getBearingDegrees(positions[4].latitude, positions[4].longitude, positions[0].latitude, positions[0].longitude));
-            }
-
-            // build latlon list
-            let latlon = "";
-            for(let i = 0; i < positions.length; i++) {
-                let obj = positions[i];
-                latlon +=  "|" + obj.latitude + "," + obj.longitude;
-            }
-
-            return <div className="d-flex align-items-center"><img src={`https://maps.googleapis.com/maps/api/staticmap?size=640x400&markers=anchor:center|icon:https://github.com/flightaware/fids_frontend/raw/master/images/aircraft_${image_bearing}.png|${positions[0].latitude},${positions[0].longitude}&path=color:0x0000ff|weight:5${latlon}&key=${google_maps_api_key}`}/></div>
+            return <div className="d-flex align-items-center">
+                <img src={`data:image/png;base64, ${encoded_map}`} />
+            </div>
         }
 
         return (
@@ -222,7 +209,7 @@ export default class FlightInfo extends Component {
                             </Col>
                         </Row>
                     </Container>
-                    {!loading_positions && !loading_maps_key ?
+                    {!loading_positions && !loading_map ?
                     <div className="d-flex justify-content-center">{getMapImage()}</div>
                     : <Container></Container>}
                     <Container>
