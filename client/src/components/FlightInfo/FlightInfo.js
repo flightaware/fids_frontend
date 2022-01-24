@@ -3,7 +3,6 @@ import { Container, Row, Col, Card } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
 import axios from 'axios';
 import * as FS from '../../controller.js';
-import * as helpers from '../../helpers.js';
 
 export default class FlightInfo extends Component {
     constructor(props) {
